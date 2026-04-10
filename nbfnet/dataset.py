@@ -207,6 +207,34 @@ class FB15k237Inductive(InductiveKnowledgeGraphDataset):
         self.load_inductive_tsvs(train_files, test_files, verbose=verbose)
 
 
+
+@R.register("datasets.WN18RRInductive")
+class WN18RRInductive(InductiveKnowledgeGraphDataset):
+    def __init__(self, path, version="v1", verbose=1):
+        path = os.path.expanduser(path)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        self.path = path
+
+        train_files = [
+            os.path.join(path, "train.txt"),
+            os.path.join(path, "valid.txt")
+        ]
+        test_files = [
+            os.path.join(path, "train.txt"),  
+            os.path.join(path, "test.txt")
+        ]
+
+        for file in train_files + test_files:
+            if not os.path.exists(file):
+                raise FileNotFoundError(f"Die Datei {file} wurde nicht gefunden!")
+
+        self.load_inductive_tsvs(train_files, test_files, verbose=verbose)
+
+
+
+
+"""
 @R.register("datasets.WN18RRInductive")
 class WN18RRInductive(InductiveKnowledgeGraphDataset):
 
@@ -243,7 +271,7 @@ class WN18RRInductive(InductiveKnowledgeGraphDataset):
                 txt_file = utils.download(url, self.path, save_file=save_file)
             test_files.append(txt_file)
 
-        self.load_inductive_tsvs(train_files, test_files, verbose=verbose)
+        self.load_inductive_tsvs(train_files, test_files, verbose=verbose)"""
 
 
 @R.register("datasets.OGBLBioKG")

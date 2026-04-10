@@ -1,7 +1,7 @@
 import os
 import sys
+import json
 import pprint
-
 import torch
 
 from torchdrug import core
@@ -10,26 +10,21 @@ from torchdrug.utils import comm
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from nbfnet import dataset, layer, model, task, util
 
+entity_mapping_file = "/home/ma/ma_ma/ma_leonenge/datasets/knowledge_graphs/entities.json"
+relation_mapping_file = "/home/ma/ma_ma/ma_leonenge/datasets/knowledge_graphs/relations.json"
 
-vocab_file = os.path.join(os.path.dirname(__file__), "../data/fb15k237_entity.txt")
-vocab_file = os.path.abspath(vocab_file)
+def load_entity_mapping(entity_mapping_file):
+    with open(entity_mapping_file, "r") as fin:
+        entity_mapping = json.load(fin)
+    return entity_mapping
 
+def load_relation_mapping(relation_mapping_file):
+    with open(relation_mapping_file, "r") as fin:
+        relation_mapping = json.load(fin)
+    return relation_mapping
 
-def load_vocab(dataset):
-    entity_mapping = {}
-    with open(vocab_file, "r") as fin:
-        for line in fin:
-            k, v = line.strip().split("\t")
-            entity_mapping[k] = v
-    entity_vocab = [entity_mapping[t] for t in dataset.entity_vocab]
-    relation_vocab = ["%s (%d)" % (t[t.rfind("/") + 1:].replace("_", " "), i)
-                      for i, t in enumerate(dataset.relation_vocab)]
-
-    return entity_vocab, relation_vocab
-
-
-def visualize_path(solver, triplet, entity_vocab, relation_vocab):
-    num_relation = len(relation_vocab)
+def visualize_path(solver, triplet, entity_mapping, relation_mapping):
+    num_relation = len(relation_mapping)
     h, t, r = triplet.tolist()
     triplet = torch.as_tensor([[h, t, r]], device=solver.device)
     inverse = torch.as_tensor([[t, h, r + num_relation]], device=solver.device)
@@ -43,24 +38,32 @@ def visualize_path(solver, triplet, entity_vocab, relation_vocab):
     samples = (triplet, inverse)
     for sample, ranking in zip(samples, rankings):
         h, t, r = sample.squeeze(0).tolist()
-        h_name = entity_vocab[h]
-        t_name = entity_vocab[t]
-        r_name = relation_vocab[r % num_relation]
-        if r >= num_relation:
-            r_name += "^(-1)"
+        
+        # Zugriff auf Entität und Relation über das Mapping
+        h_name = entity_mapping[str(h)]["name"]  # Entität-Name durch ID bekommen
+        h_desc = entity_mapping[str(h)]["desc"]  # Entität-Beschreibung durch ID bekommen
+        t_name = entity_mapping[str(t)]["name"]
+        t_desc = entity_mapping[str(t)]["desc"]
+        
+        # Relationen abrufen, sowohl Name als auch Beschreibung
+        r_name = relation_mapping[list(relation_mapping.keys())[r]]["name"]
+        r_desc = relation_mapping[list(relation_mapping.keys())[r]].get("desc", "No description available")
+        
         logger.warning(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         logger.warning("rank(%s | %s, %s) = %g" % (t_name, h_name, r_name, ranking))
+        logger.warning("Entity %s: %s" % (h_name, h_desc))
+        logger.warning("Entity %s: %s" % (t_name, t_desc))
+        logger.warning("Relation %s: %s" % (r_name, r_desc))
 
         paths, weights = solver.model.visualize(sample)
         for path, weight in zip(paths, weights):
             triplets = []
             for h, t, r in path:
-                h_name = entity_vocab[h]
-                t_name = entity_vocab[t]
-                r_name = relation_vocab[r % num_relation]
-                if r >= num_relation:
-                    r_name += "^(-1)"
-                triplets.append("<%s, %s, %s>" % (h_name, r_name, t_name))
+                h_name = entity_mapping[str(h)]["name"]
+                t_name = entity_mapping[str(t)]["name"]
+                r_name = relation_mapping[list(relation_mapping.keys())[r]]["name"]
+                r_desc = relation_mapping[list(relation_mapping.keys())[r]].get("desc", "No description available")
+                triplets.append("<%s, %s (%s), %s>" % (h_name, r_name, r_desc, t_name))
             logger.warning("weight: %g\n\t%s" % (weight, " ->\n\t".join(triplets)))
 
 
@@ -75,13 +78,20 @@ if __name__ == "__main__":
     logger.warning("Config file: %s" % args.config)
     logger.warning(pprint.pformat(cfg))
 
-    if cfg.dataset["class"] != "FB15k237":
-        raise ValueError("Visualization is only implemented for FB15k237")
+    if cfg.dataset["class"] != "WN18RRInductive":
+        raise ValueError("Visualization is only implemented for WN18RR")
 
     dataset = core.Configurable.load_config_dict(cfg.dataset)
     solver = util.build_solver(cfg, dataset)
 
-    entity_vocab, relation_vocab = load_vocab(dataset)
+    entity_mapping = load_entity_mapping(entity_mapping_file)
+    relation_mapping = load_relation_mapping(relation_mapping_file)
 
     for i in range(500):
-        visualize_path(solver, solver.test_set[i], entity_vocab, relation_vocab)
+        visualize_path(solver, solver.test_set[i], entity_mapping, relation_mapping)
+
+
+
+
+
+

@@ -9,4 +9,8 @@ __pycache__
 *.pyc
 
 # macOS
-.DS_Store
+.DS_Storenbfnet_env/
+*.log
+*.save*
+__pycache__/
+nbfnet_env/
