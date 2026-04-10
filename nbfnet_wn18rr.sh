@@ -9,6 +9,10 @@
 #SBATCH --output=nbfnet_wn18rr_%j.log
 
 source ~/Seminar/NBFNet/nbfnet_env/bin/activate
+module load devel/cuda/11.8
+export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CUDA_HOME/lib64:$LD_LIBRARY_PATH"
 
 export PYTHONUNBUFFERED=1
 
