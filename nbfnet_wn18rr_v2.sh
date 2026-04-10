@@ -5,8 +5,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=24
-#SBATCH --time=02:00:00
-#SBATCH --output=nbfnet_wn18rr_%j.log
+#SBATCH --time=06:00:00
+#SBATCH --output=nbfnet_wn18rr_v2_%j.log
 
 source ~/Seminar/NBFNet/nbfnet_env/bin/activate
 

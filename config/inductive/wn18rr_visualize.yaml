@@ -1,13 +1,13 @@
-# config/knowledge_graph/wn18rr_visualize.yaml
+# config/inductive/wn18rr_visualize.yaml
 
 output_dir: ~/experiments/wn18rr_visualize/
 
 dataset:
-  class: WN18RR
+  class: WN18RRInductive
   path: /home/ma/ma_ma/ma_leonenge/datasets/knowledge_graphs
 
 task:
-  class: KnowledgeGraphCompletion
+  class: InductiveKnowledgeGraphCompletion
   model:
     class: NBFNet
     input_dim: 32
@@ -16,12 +16,11 @@ task:
     aggregate_func: pna
     short_cut: yes
     layer_norm: yes
-    dependent: yes
-    remove_one_hop: yes
+    dependent: no
   criterion: bce
   num_negative: 32
   strict_negative: yes
-  adversarial_temperature: 0.5
+  adversarial_temperature: 1
   sample_weight: no
   full_batch_eval: yes
 
@@ -31,8 +30,8 @@ optimizer:
 
 engine:
   gpus: {{ gpus }}
-  batch_size: 64
+  batch_size: 32
 
-checkpoint: ~/experiments/wn18rr/model_epoch_20.pth
+checkpoint: {{ checkpoint }}
 
 metric: mrr
