@@ -8,7 +8,7 @@
 #SBATCH --time=00:30:00
 #SBATCH --output=nbfnet_wn18rr_viz_%j.log
 
-source ~/Seminar/NBFNet/nbfnet_env/bin/activate
+source ~/Seminar/NBFNet/kg_reasoning_env/bin/activate
 module load devel/cuda/11.8
 export CUDA_HOME=$(dirname $(dirname $(which nvcc)))
 export PATH="$CUDA_HOME/bin:$PATH"
