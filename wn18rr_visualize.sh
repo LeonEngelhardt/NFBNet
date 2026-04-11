@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
 #SBATCH --job-name=nbfnet_wn18rr_viz
-#SBATCH --partition=gpu_h100
+#SBATCH --partition=gpu_a100_il
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
