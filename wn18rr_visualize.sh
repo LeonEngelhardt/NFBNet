@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 #SBATCH --job-name=nbfnet_wn18rr_viz
 #SBATCH --partition=gpu_a100_short
 #SBATCH --nodes=1
