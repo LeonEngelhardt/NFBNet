@@ -95,5 +95,9 @@ if __name__ == "__main__":
 
     entity_vocab, relation_vocab = load_vocab(dataset)
 
+    # The TorchDrug engine sets `task.split` internally during train / evaluate.
+    # In visualization we call `predict_and_target()` directly, so we set it here.
+    solver.model.split = "test"
+
     for i in range(min(500, len(solver.test_set))):
         visualize_path(solver, solver.test_set[i], entity_vocab, relation_vocab)
