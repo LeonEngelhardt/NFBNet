@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
 #SBATCH --job-name=nbfnet_wn18rr_viz
-#SBATCH --partition=gpu_a100_il
+#SBATCH --partition=gpu_a100_short
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
@@ -15,6 +15,7 @@ export PATH="$CUDA_HOME/bin:$PATH"
 export LD_LIBRARY_PATH="$CUDA_HOME/lib64:$LD_LIBRARY_PATH"
 
 export PYTHONUNBUFFERED=1
+export OMP_NUM_THREADS=24
 
 cd ~/Seminar/NBFNet
 
