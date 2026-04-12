@@ -318,6 +318,20 @@ class InductiveKnowledgeGraphCompletion(tasks.KnowledgeGraphCompletion, core.Con
         # in case of GPU OOM
         return mask.cpu(), target.cpu()
 
+    def visualize(self, batch):
+        """
+        Visualize paths for a batch of triplets.
+
+        TorchDrug's default KnowledgeGraphCompletion.visualize() uses `fact_graph`.
+        For inductive runs we must use the split-specific graph (train / valid / test),
+        otherwise the returned node indices may not match the vocabulary of this split.
+        """
+        if batch.ndim == 1:
+            batch = batch.unsqueeze(0)
+        h_index, t_index, r_index = batch.t()
+        graph = getattr(self, "%s_graph" % self.split)
+        return self.model.visualize(graph, h_index, t_index, r_index)
+
     def evaluate(self, pred, target):
         mask, target = target
 
